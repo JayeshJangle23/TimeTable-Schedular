@@ -24,7 +24,10 @@ app.use(rateLimiter);
 app.use(helmet());
 app.use(
   cors({
-    origin: "https://remindrrr.vercel.app",
+    origin: [
+      "https://remindrrr.vercel.app",
+      "https://remindrrr-216mdp27u-jayeshjangle23s-projects.vercel.app",
+    ],
     credentials: true,
   }),
 );
