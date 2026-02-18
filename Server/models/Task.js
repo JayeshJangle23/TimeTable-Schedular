@@ -1,3 +1,57 @@
+// const mongoose = require("mongoose");
+
+// const taskSchema = new mongoose.Schema(
+//   {
+//     userId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "user",
+//       required: true,
+//     },
+
+//     title: {
+//       type: String,
+//       required: true,
+//     },
+
+//     description: String,
+
+//     reminderAt: {
+//       type: Date,
+//       required: true,
+//     },
+
+//     frequency: {
+//       type: String,
+//       enum: ["once", "daily", "weekly", "monthly"],
+//       default: "once",
+//     },
+
+//     completedDates: {
+//       type: [Date],
+//       default: [],
+//     },
+
+//     completedCount: {
+//       type: Number,
+//       default: 0,
+//     },
+
+//     status: {
+//       type: String,
+//       enum: ["active", "paused", "completed"],
+//       default: "active",
+//     },
+
+//     isReminderSent: {
+//       type: Boolean,
+//       default: false,
+//     },
+//   },
+//   { timestamps: true },
+// );
+
+// module.exports = mongoose.model("Task", taskSchema);
+
 const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema(
@@ -6,48 +60,56 @@ const taskSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
+      index: true,
     },
-
     title: {
       type: String,
       required: true,
+      trim: true,
     },
-
-    description: String,
-
+    description: {
+      type: String,
+      trim: true,
+    },
+    // reminderTime: {
+    //   type: String,
+    //   required: true,
+    // },
     reminderAt: {
       type: Date,
       required: true,
+      index: true,
     },
-
     frequency: {
       type: String,
       enum: ["once", "daily", "weekly", "monthly"],
       default: "once",
     },
-
     completedDates: {
       type: [Date],
       default: [],
     },
-
     completedCount: {
       type: Number,
       default: 0,
     },
-
     status: {
       type: String,
       enum: ["active", "paused", "completed"],
       default: "active",
+      index: true,
     },
-
-    isReminderSent: {
-      type: Boolean,
-      default: false,
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
     },
   },
   { timestamps: true },
 );
+taskSchema.index({ reminderAt: 1, status: 1 });
 
-module.exports = mongoose.model("Task", taskSchema);
+module.exports = mongoose.model("task", taskSchema);

@@ -1,99 +1,10 @@
-// const Task = require("../models/Task");
-// const { getTaskProgress } = require("../utils/taskProgress");
-
-// exports.createTask = async (req, res) => {
-//   try {
-//     const { title, description, reminderTime } = req.body;
-
-//     // reminderTime = "14:30"
-//     const [hour, minute] = reminderTime.split(":").map(Number);
-
-//     const now = new Date();
-//     // const reminderAt = new Date();
-//     // reminderAt.setHours(hour, minute, 0, 0);
-//     const reminderAt = new Date(
-//       now.getFullYear(),
-//       now.getMonth(),
-//       now.getDate(),
-//       hour,
-//       minute,
-//       0,
-//       0,
-//     );
-
-//     // If time already passed today → send tomorrow
-//     if (reminderAt < now) {
-//       reminderAt.setDate(reminderAt.getDate() + 1);
-//     }
-//     console.log("🕒 ReminderAt:", reminderAt.toString());
-
-//     const task = await Task.create({
-//       title,
-//       description,
-//       reminderAt,
-//       userId: req.user._id,
-//     });
-
-//     res.status(201).json(task);
-//   } catch (err) {
-//     res.status(400).json({ message: err.message });
-//   }
-// };
-
-// exports.getUserTasks = async (req, res) => {
-//   try {
-//     const tasks = await Task.find({ userId: req.user._id });
-//     res.json(tasks);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
-// // COMPLETE TASK FOR TODAY
-// exports.completeTaskForToday = async (req, res) => {
-//   try {
-//     const task = await Task.findOne({
-//       _id: req.params.id,
-//       userId: req.user._id, // ✅ ownership check
-//     });
-
-//     if (!task) {
-//       return res.status(404).json({ message: "Task not found" });
-//     }
-
-//     const today = new Date().toDateString();
-
-//     const alreadyCompleted = task.completedDates.some(
-//       (d) => d.toDateString() === today,
-//     );
-
-//     if (alreadyCompleted) {
-//       return res
-//         .status(400)
-//         .json({ message: "Task already completed for today" });
-//     }
-
-//     task.completedDates.push(new Date());
-//     task.completedCount += 1;
-
-//     await task.save();
-
-//     res.json({
-//       message: "Task marked completed",
-//       task,
-//       progress: getTaskProgress(task),
-//     });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// };
-
 const Task = require("../models/Task");
 const { getTaskProgress } = require("../utils/taskProgress");
 
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, reminderTime, frequency } = req.body;
+    const { title, description, reminderTime, frequency, startDate, endDate } =
+      req.body;
 
     if (!reminderTime) {
       return res.status(400).json({ message: "Reminder time required" });
@@ -101,18 +12,13 @@ exports.createTask = async (req, res) => {
 
     const [hour, minute] = reminderTime.split(":").map(Number);
     const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-    let reminderAt = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      hour,
-      minute,
-      0,
-      0,
-    );
+    let reminderAt = new Date();
+    reminderAt.setHours(hour, minute, 0, 0);
 
-    if (reminderAt < now) {
+    if (reminderAt <= now) {
       reminderAt.setDate(reminderAt.getDate() + 1);
     }
 
@@ -122,6 +28,8 @@ exports.createTask = async (req, res) => {
       description,
       reminderAt,
       frequency,
+      startDate: start,
+      endDate: end,
     });
 
     res.status(201).json(task);
@@ -133,7 +41,11 @@ exports.createTask = async (req, res) => {
 // GET USER TASKS
 exports.getUserTasks = async (req, res) => {
   const tasks = await Task.find({ userId: req.user._id });
-  res.json(tasks);
+  const formatted = tasks.map((task) => ({
+    ...task.toObject(),
+    progress: getTaskProgress(task),
+  }));
+  res.json(formatted);
 };
 
 // COMPLETE TASK FOR TODAY
@@ -148,14 +60,23 @@ exports.completeTaskForToday = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    const todayStr = new Date().toDateString();
+    const todayStr = new Date();
+    todayStr.setHours(0, 0, 0, 0);
 
-    const alreadyDone = task.completedDates.some(
-      (d) => d.toDateString() === todayStr,
-    );
+    const alreadyDone = task.completedDates.some((d) => {
+      const date = new Date(d);
+      date.setHours(0, 0, 0, 0);
+      return date.getTime() === todayStr.getTime();
+    });
 
     if (alreadyDone) {
-      return res.status(400).json({ message: "Already completed today" });
+      return res.status(200).json({
+        message: "Already completed today",
+        task: {
+          ...task.toObject(),
+          progress: getTaskProgress(task),
+        },
+      });
     }
 
     task.completedDates.push(new Date());
@@ -169,9 +90,32 @@ exports.completeTaskForToday = async (req, res) => {
 
     res.json({
       message: "Task completed",
-      progress: getTaskProgress(task),
+      task: {
+        ...task.toObject(),
+        progress: getTaskProgress(task),
+      },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE TASK
+exports.deleteTask = async (req, res) => {
+  try {
+    const task = await Task.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    return res.status(200).json({
+      message: "Task deleted successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
   }
 };

@@ -5,18 +5,23 @@ const cors = require("cors");
 const authRoutes = require("./routes/userAuth");
 const taskRoutes = require("./routes/taskRoutes");
 const timetableRouter = require("./routes/timetableRouter");
+require("./cron");
+const helmet = require("helmet");
+const rateLimiter = require("./middleware/rateLimit.middleware");
 
 // require("./cron/taskCron");
 // require("./cron/timeTableCron");
-require("./cron");
 
 const main = require("./config/db");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
 app.use(express.json()); // for JSON
 app.use(express.urlencoded({ extended: true })); // for form data
 app.use(cookieParser()); // for form data
+app.use(rateLimiter);
+app.use(helmet());
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -27,9 +32,7 @@ app.use(
 app.use("/user", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/timetable", require("./routes/timetableRouter"));
-app.get("/", (req, res) => {
-  res.send("HELLO");
-});
+app.use(errorHandler);
 
 const InitalizeConnection = async () => {
   try {

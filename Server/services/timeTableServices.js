@@ -2,30 +2,33 @@ const { default: mongoose } = require("mongoose");
 const Timetable = require("../models/TimeTablemodel");
 
 exports.createTimetable = async (userId, data) => {
-  const exists = await Timetable.findOne({ userId });
+  const exists = await Timetable.findOne({ userId: userId });
   if (exists) throw new Error("Timetable already exists");
 
-  return Timetable.create({ userId, ...data });
+  return await Timetable.create({ userId, ...data });
 };
 
-exports.getTimetable = (userId) => {
-  return Timetable.findOne({ userId });
+exports.getTimetable = async (userId) => {
+  return await Timetable.findOne({ userId });
 };
 
-exports.updateTimetable = (userId, data) => {
-  return Timetable.findOneAndUpdate({ userId }, data, { new: true });
+exports.updateTimetable = async (userId, data) => {
+  return await Timetable.findOneAndUpdate({ userId }, data, { new: true });
 };
 
-exports.toggleStatus = (userId) => {
-  return Timetable.findOneAndUpdate(
-    { userId },
-    [{ $set: { isActive: { $not: "$isActive" } } }],
-    { new: true },
-  );
+exports.toggleStatus = async (userId) => {
+  const timetable = await Timetable.findOne({ user: userId });
+  if (!timetable) {
+    throw new Error("Timetable not found for this user");
+  }
+  timetable.isActive = !timetable.isActive;
+
+  await timetable.save();
+
+  return timetable;
 };
 
 exports.deleteTimetable = async (userId) => {
-  console.log("DELETE userId:", userId, typeof userId);
   const deleted = await Timetable.findOneAndDelete({
     userId: userId,
   });

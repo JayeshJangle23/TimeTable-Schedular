@@ -11,6 +11,9 @@ exports.create = async (req, res) => {
 
 exports.get = async (req, res) => {
   const timetable = await service.getTimetable(req.user._id);
+  if (!timetable) {
+    return res.status(404).json({ message: "No timetable found" });
+  }
   res.json(timetable);
 };
 

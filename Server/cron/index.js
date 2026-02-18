@@ -1,4 +1,4 @@
 require("./taskCron");
-require("./timeTableCron");
+// require("./timeTableCron");
 
 console.log("🕒 All cron jobs initialized");

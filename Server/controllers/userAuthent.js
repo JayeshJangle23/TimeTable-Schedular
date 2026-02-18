@@ -68,13 +68,18 @@ const login = async (req, res) => {
     };
 
     const token = jwt.sign(
-      { _id: user._id, emailId: emailId },
+      { _id: user._id, emailId: user.emailId },
       process.env.JWT_KEY,
       { expiresIn: 60 * 60 },
     );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // true only in production HTTPS
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
     res.status(201).json({
       user: reply,
-      token,
       message: "Loggin Successfully",
     });
   } catch (err) {
@@ -90,4 +95,17 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { register, login, logout };
+const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+module.exports = { register, login, logout, getMe };
