@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 async function main() {
   try {
     const password = encodeURIComponent(process.env.MongoPass);
-    console.log(process.env.MongoPass);
     await mongoose.connect(
       `mongodb+srv://timetablereminder:${password}@cluster0.d8sduwd.mongodb.net/`,
     );
