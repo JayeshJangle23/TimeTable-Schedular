@@ -24,7 +24,7 @@ app.use(rateLimiter);
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: "https://remindrrr.vercel.app",
     credentials: true,
   }),
 );
