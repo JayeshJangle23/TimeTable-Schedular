@@ -7,7 +7,7 @@ exports.sendEmail = async (to, subject, html) => {
       {
         sender: {
           name: "Task Reminder",
-          email: "jayeshjangle1723@gmail.com", // verified sender
+          email: process.env.MainEmail, // verified sender
         },
         to: [{ email: to }],
         subject,
