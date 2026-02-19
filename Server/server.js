@@ -52,3 +52,7 @@ const InitalizeConnection = async () => {
   }
 };
 InitalizeConnection();
+
+app.get("/", (req, res) => {
+  res.send("HELLO WELCOME IN A REMINDrrr");
+});
