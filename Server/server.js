@@ -16,6 +16,7 @@ const main = require("./config/db");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
+app.set("etag", false);
 
 app.use(express.json()); // for JSON
 app.use(express.urlencoded({ extended: true })); // for form data
