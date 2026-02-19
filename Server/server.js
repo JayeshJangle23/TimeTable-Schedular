@@ -31,6 +31,10 @@ app.use(
     credentials: true,
   }),
 );
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
 
 app.use("/user", authRoutes);
 app.use("/api/tasks", taskRoutes);
