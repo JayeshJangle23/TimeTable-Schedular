@@ -74,8 +74,8 @@ const login = async (req, res) => {
     );
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // true only in production HTTPS
-      sameSite: "lax",
+      secure: true, // true only in production HTTPS
+      sameSite: "none",
       maxAge: 60 * 60 * 1000, // 1 hour
     });
     res.status(201).json({
