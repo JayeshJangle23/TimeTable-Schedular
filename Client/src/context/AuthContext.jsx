@@ -83,6 +83,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     refresh();
   }, []);
+  useEffect(() => {
+    console.log("USER STATE:", user);
+  }, [user]);
 
   const register = async (payload) => {
     setLoading(true);
@@ -128,6 +131,7 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
+      setUser,
       isAuthed: !!user,
       booting,
       loading,
