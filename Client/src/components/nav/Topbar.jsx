@@ -1,12 +1,14 @@
 import React from "react";
 import Button from "../ui/Button";
 import useAuth from "../../hooks/useAuth";
-import useTheme from "../../hooks/useTheme";
+import { useContext } from "react";
+import { ThemeContext } from "../../context/ThemeContext";
+
 import ThemeToggle from "../ui/ThemeToggle";
 
 export default function Topbar() {
   const { user, logout, loading } = useAuth();
-  const { toggleTheme, theme } = useTheme();
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   return (
     <header>
