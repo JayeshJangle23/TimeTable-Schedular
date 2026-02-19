@@ -21,8 +21,8 @@ export default function App() {
       <Routes>
         <Route element={<PublicOnlyRoute />}>
           <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/user/login" element={<Login />} />
+            <Route path="/user/register" element={<Register />} />
           </Route>
         </Route>
 
