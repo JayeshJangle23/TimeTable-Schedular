@@ -36,6 +36,8 @@ cron.schedule("* * * * *", async () => {
       //   "⏰ Task Reminder",
       //   `<b>${task.title}</b><br/>${task.description || ""}`,
       // );
+      console.log("EMAIL USER:", process.env.BREVO_USER);
+      console.log("EMAIL PASS:", process.env.BREVO_PASS);
 
       const html = generateTaskReminderEmail(user.firstName, task);
 
