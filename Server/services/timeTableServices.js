@@ -17,7 +17,7 @@ exports.updateTimetable = async (userId, data) => {
 };
 
 exports.toggleStatus = async (userId) => {
-  const timetable = await Timetable.findOne({ user: userId });
+  const timetable = await Timetable.findOne({ userId });
   if (!timetable) {
     throw new Error("Timetable not found for this user");
   }
