@@ -25,13 +25,11 @@ app.use(rateLimiter);
 app.use(helmet());
 app.use(
   cors({
-    origin: [
-      "https://remindrrr.vercel.app",
-      "https://remindrrr-216mdp27u-jayeshjangle23s-projects.vercel.app",
-    ],
+    origin: "https://time-table-schedular.vercel.app",
     credentials: true,
   }),
 );
+app.options("*", cors());
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
