@@ -29,7 +29,6 @@ app.use(
     credentials: true,
   }),
 );
-app.options("/*", cors());
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
